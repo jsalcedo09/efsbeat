@@ -1,0 +1,7 @@
+################### Efsbeat Configuration Example #########################
+
+############################# Efsbeat ######################################
+
+efsbeat:
+  # Defines how often an event is sent to the output
+  period: 1s

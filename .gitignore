@@ -1,0 +1,10 @@
+/.idea
+/build
+/vendor
+
+
+.DS_Store
+/efsbeat
+/efsbeat.test
+/efsbeat-local.yml
+*.pyc
