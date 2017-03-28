@@ -89,11 +89,17 @@ func (bt *Efsbeat) walkAndPublishDir(path string) error {
 	var efsSize int64
 	logp.Info("Calculating path %s size...", path)
 	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			var s = info.Size()
-			realSize += s
-			efsSize += ((int64(math.Ceil(float64(s / EFS_ROUND_VALUE)))) * EFS_ROUND_VALUE) + EFS_METADATA
+		var s = info.Size()
+		realSize += s
+		if s <= 0 {
+			s = EFS_METADATA
 		}
+		if info.IsDir() {
+			efsSize += ((int64(math.Ceil(float64(s) / float64(EFS_ROUND_VALUE)))) * EFS_ROUND_VALUE)
+		} else {
+			efsSize += ((int64(math.Ceil(float64(s) / float64(EFS_ROUND_VALUE)))) * EFS_ROUND_VALUE) + EFS_METADATA
+		}
+
 		return err
 	})
 	logp.Info("%v %v %s", realSize, efsSize, path)

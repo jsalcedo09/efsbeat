@@ -104,7 +104,7 @@
       "tokenizer": {
         "path_tokenizer": {
           "type": "pattern",
-          "pattern": "(/|\\)+"
+          "pattern": "/"
         }
       }
     }
