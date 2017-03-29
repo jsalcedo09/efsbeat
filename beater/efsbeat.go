@@ -15,6 +15,7 @@ import (
 	"github.com/jsalcedo09/efsbeat/config"
 )
 
+//Efsbeat defines the struct info for the Beat
 type Efsbeat struct {
 	done   chan struct{}
 	config config.Config
@@ -22,10 +23,13 @@ type Efsbeat struct {
 	b      *beat.Beat
 }
 
-const EFS_ROUND_VALUE int64 = 4 * 1024 //4Kb
-const EFS_METADATA int64 = 2 * 1024    //2Kb
+//EfsRoundValue AWS EFS size in bytes that files and folders will be rounded to 4Kb
+const EfsRoundValue int64 = 4 * 1024
 
-// Creates beater
+//EfsMetadata AWS EFS Size in bytes of the files metadata 2Kb
+const EfsMetadata int64 = 2 * 1024
+
+//New Creates beater
 func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	config := config.DefaultConfig
 	if err := cfg.Unpack(&config); err != nil {
@@ -39,6 +43,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 	return bt, nil
 }
 
+//Run Contains the main application loop that captures data and sends it to the defined output using the publisher
 func (bt *Efsbeat) Run(b *beat.Beat) error {
 	logp.Info("efsbeat is running! Hit CTRL-C to stop it.")
 	bt.b = b
@@ -92,17 +97,17 @@ func (bt *Efsbeat) walkAndPublishDir(path string) error {
 		var s = info.Size()
 		realSize += s
 		if s <= 0 {
-			s = EFS_METADATA
+			s = EfsMetadata
 		}
 		if info.IsDir() {
-			efsSize += ((int64(math.Ceil(float64(s) / float64(EFS_ROUND_VALUE)))) * EFS_ROUND_VALUE)
+			efsSize += ((int64(math.Ceil(float64(s) / float64(EfsRoundValue)))) * EfsRoundValue)
 		} else {
-			efsSize += ((int64(math.Ceil(float64(s) / float64(EFS_ROUND_VALUE)))) * EFS_ROUND_VALUE) + EFS_METADATA
+			efsSize += ((int64(math.Ceil(float64(s) / float64(EfsRoundValue)))) * EfsRoundValue) + EfsMetadata
 		}
 
 		return err
 	})
-	logp.Info("%v %v %s", realSize, efsSize, path)
+
 	if err != nil {
 		logp.Err("Error calculating path size %v", err)
 	}
@@ -119,6 +124,7 @@ func (bt *Efsbeat) walkAndPublishDir(path string) error {
 	return err
 }
 
+//Stop Contains logic that is called when the Beat is signaled to stop
 func (bt *Efsbeat) Stop() {
 	bt.client.Close()
 	close(bt.done)
