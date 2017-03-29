@@ -11,6 +11,12 @@ Ensure that this folder is at the following location:
 
 * [Golang](https://golang.org/dl/) 1.7
 
+### AWS EFS Storage Beat specific configuration options
+
+- `efsbeat.period`  : (mandatory) The period at which the folders will be size metered.  
+- `efsbeat.paths` : (mandatory) A list of paths to be metered by the beat, you can add * to fetch multiple folders in one path, as an example `["/data/*","/data/","/tmp/"]` will create on event with /data/folder1, /data/folder2, /data and /tmp folders disk usage splited in two, `size.real` meaning what operating system see and `size.efsmetered` for what AWS EFS will meter and bill.
+- `efsbeat.dironly` : (mandatory) `true` or `false` value, when false, an event is created when using * on path, so for example, `efsbeat.dironly: false` on `/data/*` will result on multiple events for: /data/folder1, /data/folder2, /data/folder1, /data/file1 and /data/file2. *Note:* General folder size calculations are always including files and folders no matter this option
+
 ### Init Project
 To get running with Efsbeat and also install the
 dependencies, run the following command:
