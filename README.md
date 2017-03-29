@@ -2,6 +2,8 @@
 
 Welcome to Efsbeat.
 
+This is a simple beat to get any folder(s) size every period of time. It has specific implementation on [how AWS EFS meters usage](http://docs.aws.amazon.com/efs/latest/ug/metered-sizes.html), so every event will have multiple size values, one called `size.real` and one called `size.efsmetered`
+
 Ensure that this folder is at the following location:
 `${GOPATH}/github.com/jsalcedo09`
 
