@@ -33,6 +33,9 @@ output.elasticsearch:
   # Array of hosts to connect to.
   hosts: ${ES_HOSTS:[]}
   index: ${INDEX_NAME:efs-beat}
+  ssl.certificate_authorities: ${CA_CERT}
+  ssl.certificate: ${CLIENT_CERT}
+  ssl.key: ${CLIENT_KEY}
   # Optional protocol and basic auth credentials.
   #protocol: "https"
   #username: "elastic"
