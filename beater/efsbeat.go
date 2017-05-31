@@ -55,6 +55,7 @@ func (bt *Efsbeat) Run(b *beat.Beat) error {
 			return nil
 		case <-ticker.C:
 		}
+		currentTime := time.Now()
 		for _, path := range bt.config.Paths {
 			files, err := filepath.Glob(path)
 			if err != nil {
@@ -69,14 +70,14 @@ func (bt *Efsbeat) Run(b *beat.Beat) error {
 				}
 				switch mode := fi.Mode(); {
 				case mode.IsDir():
-					err := bt.walkAndPublishDir(file)
+					err := bt.walkAndPublishDir(file, currentTime)
 					if err != nil {
 						logp.Err("Error while walking directories %v", err)
 						return err
 					}
 				case mode.IsRegular():
 					if !bt.config.DirOnly {
-						err := bt.walkAndPublishDir(file)
+						err := bt.walkAndPublishDir(file, currentTime)
 						if err != nil {
 							logp.Err("Error while walking directories %v", err)
 							return err
@@ -89,7 +90,7 @@ func (bt *Efsbeat) Run(b *beat.Beat) error {
 	}
 }
 
-func (bt *Efsbeat) walkAndPublishDir(path string) error {
+func (bt *Efsbeat) walkAndPublishDir(path string, tickTime time.Time) error {
 	var realSize int64
 	var efsSize int64
 	logp.Info("Calculating path %s size...", path)
@@ -113,7 +114,7 @@ func (bt *Efsbeat) walkAndPublishDir(path string) error {
 	}
 
 	event := common.MapStr{
-		"@timestamp":      common.Time(time.Now()),
+		"@timestamp":      common.Time(tickTime),
 		"type":            bt.b.Name,
 		"path":            path,
 		"size.real":       realSize,
